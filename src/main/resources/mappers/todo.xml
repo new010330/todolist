@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="com.springboot.todolist.domain.todo.TodoRepository">
+	<insert id="save" parameterType="com.springboot.todolist.domain.todo.Todo">
+		insert into
+			todo_mst
+		values(
+			0,
+			#{todo_content},
+			0,
+			#{importance_flag},
+			now(),
+			now()
+		)
+	</insert>
+	
+	<select id="getTodoListofIndex" parameterType="hashmap" resultType="com.springboot.todolist.domain.todo.Todo">
+		SELECT
+			tm.todo_code,
+			tm.todo_content,
+			tm.todo_complete,
+			tm.importance_flag,
+			
+			tt.total_count,
+			
+			tm.create_date,
+			tm.update_date
+		FROM
+			todo_mst tm
+			LEFT OUTER JOIN (select
+								COUNT(*) AS total_count
+							from
+								todo_mst) tt ON(1=1)
+		ORDER BY
+			tm.todo_code DESC
+		LIMIT
+			#{index}, #{count} <!-- map.put으로 넣어준 "count"키값을 넣는다. -->
+	</select>
+	
+	<select id="getImportanceTodoListOfIndex" parameterType="hashmap" resultType="com.springboot.todolist.domain.todo.Todo">
+		SELECT
+			*
+		FROM
+			todo_mst tm
+			LEFT OUTER JOIN (select
+								COUNT(*) AS total_count
+							from
+								todo_mst
+							where
+								importance_flag = 1) tt ON(1=1)
+		WHERE
+			importance_flag = 1
+		ORDER BY
+			todo_code DESC
+				LIMIT
+					#{index}, #{count}
+	</select>
+	
+	<update id="updateTodoComplete" parameterType="Integer">
+		UPDATE
+			todo_mst
+		SET
+			todo_complete = case when todo_complete = 0 then 1 ELSE 0 END
+		WHERE
+			todo_code = #{todo_code};
+	</update>
+	
+	<update id="importanceTodoComplete" parameterType="Integer">
+		UPDATE
+			todo_mst
+		SET
+			importance_flag = case when importance_flag = 0 then 1 ELSE 0 END
+		WHERE
+			todo_code = #{todo_code};
+	</update>
+</mapper>
