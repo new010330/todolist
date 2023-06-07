@@ -6,11 +6,13 @@ import lombok.Data;
 
 @Data
 public class UpdateTodoReqDto {
-	private String todoContent;
+	private int todoCode;
+	private String todo;
 	
 	public Todo toEntity() {
 		return Todo.builder()
-				.todo_content(todoContent)
+				.todo_code(todoCode)
+				.todo_content(todo)
 				.build();
 	}
 }

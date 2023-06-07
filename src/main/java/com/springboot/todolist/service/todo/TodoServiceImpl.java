@@ -11,6 +11,7 @@ import com.springboot.todolist.domain.todo.Todo;
 import com.springboot.todolist.domain.todo.TodoRepository;
 import com.springboot.todolist.web.dto.todo.CreateTodoReqDto;
 import com.springboot.todolist.web.dto.todo.TodoListRespDto;
+import com.springboot.todolist.web.dto.todo.UpdateTodoReqDto;
 
 import lombok.RequiredArgsConstructor;
 
@@ -79,6 +80,12 @@ public class TodoServiceImpl implements TodoService{
 	public boolean importanceTodoComplete(int todoCode) throws Exception {
 		
 		return todoRepository.importanceTodoComplete(todoCode) > 0;
+	}
+
+	@Override
+	public boolean updateTodo(UpdateTodoReqDto updateTodoReqDto) throws Exception {
+		
+		return todoRepository.updateTodoByTodoCode(updateTodoReqDto.toEntity()) > 0;
 	}
 
 }

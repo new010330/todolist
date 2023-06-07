@@ -76,4 +76,14 @@
 		WHERE
 			todo_code = #{todo_code};
 	</update>
+	
+	<update id="updateTodoByTodoCode" parameterType="com.springboot.todolist.domain.todo.Todo">
+		UPDATE
+			todo_mst
+		SET
+			todo_content = #{todo_content},
+			update_date = NOW()
+		WHERE
+			todo_code = #{todo_code};
+	</update>
 </mapper>

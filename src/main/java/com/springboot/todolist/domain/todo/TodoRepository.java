@@ -15,4 +15,6 @@ public interface TodoRepository {
 	
 	public int updateTodoComplete(int todo_code) throws Exception;
 	public int importanceTodoComplete(int todo_code) throws Exception;
+	
+	public int updateTodoByTodoCode(Todo todo) throws Exception;
 }

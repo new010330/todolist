@@ -18,6 +18,7 @@ import com.springboot.todolist.service.todo.TodoService;
 import com.springboot.todolist.web.dto.CMRespDto;
 import com.springboot.todolist.web.dto.todo.CreateTodoReqDto;
 import com.springboot.todolist.web.dto.todo.TodoListRespDto;
+import com.springboot.todolist.web.dto.todo.UpdateTodoReqDto;
 
 import lombok.RequiredArgsConstructor;
 
@@ -97,9 +98,19 @@ public class TodoController {
 		return ResponseEntity.ok().body(new CMRespDto<>(1, "update success to load", status));
 	}
 	
-	@PutMapping("/content/{todoContent}")
-	public ResponseEntity<?> setContentTodo(@PathVariable int todoCode) {
+	@PutMapping("/todo/{todoCode}")
+	public ResponseEntity<?> setTodo(@PathVariable int todoCode, @RequestBody UpdateTodoReqDto updateTodoReqDto) {
+		boolean status = false;
+		updateTodoReqDto.setTodoCode(todoCode);
+		try {
+			status = todoService.updateTodo(updateTodoReqDto);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ResponseEntity.internalServerError().body(new CMRespDto<>(-1, "failed", status));
+
+		}
 		
-		return ResponseEntity.ok().body(new CMRespDto<>(1, "update success to load", null));
+		return ResponseEntity.ok().body(new CMRespDto<>(1, "success", status));
 	}
 }
+
