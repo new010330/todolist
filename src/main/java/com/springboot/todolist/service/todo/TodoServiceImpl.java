@@ -30,33 +30,28 @@ public class TodoServiceImpl implements TodoService{
 	}
 
 	@Override
-	public List<TodoListRespDto> getTodoList(int page, int contentCount) throws Exception {
+	public List<TodoListRespDto> getTodoList(String type, int page, int contentCount) throws Exception {
+		createGetTodoListMap(type, page, contentCount);
 		
-		Map<String, Object> map = new HashMap<String, Object>();
-		map.put("index", (page - 1) * contentCount);
-		map.put("count", contentCount);
+		List<Todo> todolist = todoRepository.getTodoList(createGetTodoListMap(type, page, contentCount)); // (페이지 - 1) * 들고올 갯수
 		
-		List<Todo> todolist = todoRepository.getTodoListofIndex(map); // (페이지 - 1) * 들고올 갯수
-		List<TodoListRespDto> todoListRespDtos = new ArrayList<TodoListRespDto>();
-		todolist.forEach(todo -> {
-			todoListRespDtos.add(todo.toListDto());
-		});
 		
-		return todoListRespDtos;
+		return createTodoListRespDtos(todolist);
 	}
 
-	@Override
-	public List<TodoListRespDto> getImportanceTodoList(int page, int contentCount) throws Exception {
-		
-		List<Todo> todoList = todoRepository.getImportanceTodoListOfIndex(createGetTodoListMap(page, contentCount));
-		
-		return createTodoListRespDtos(todoList);
-	}
+//	@Override
+//	public List<TodoListRespDto> getImportanceTodoList(int page, int contentCount) throws Exception {
+//		
+//		List<Todo> todoList = todoRepository.getImportanceTodoListOfIndex(createGetTodoListMap(page, contentCount));
+//		
+//		return createTodoListRespDtos(todoList);
+//	}
 	
-	private Map<String, Object> createGetTodoListMap(int page, int contentCount) {
+	private Map<String, Object> createGetTodoListMap(String type, int page, int contentCount) {
 		Map<String, Object> map = new HashMap<String, Object>();
-		map.put("index", (page - 1) * contentCount);
-		map.put("count", contentCount); // (페이지 - 1) * 들고올 갯수
+		map.put("type", type);
+		map.put("index", (page - 1) * contentCount); // (페이지 - 1) * 들고올 갯수
+		map.put("count", contentCount);
 		return map;
 	}
 	
@@ -86,6 +81,12 @@ public class TodoServiceImpl implements TodoService{
 	public boolean updateTodo(UpdateTodoReqDto updateTodoReqDto) throws Exception {
 		
 		return todoRepository.updateTodoByTodoCode(updateTodoReqDto.toEntity()) > 0;
+	}
+
+	@Override
+	public boolean removeTodo(int todoCode) throws Exception {
+		
+		return todoRepository.remove(todoCode) > 0;
 	}
 
 }

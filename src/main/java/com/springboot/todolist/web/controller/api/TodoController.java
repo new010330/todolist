@@ -3,6 +3,7 @@ package com.springboot.todolist.web.controller.api;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -46,32 +47,46 @@ public class TodoController {
 		return ResponseEntity.ok().body(new CMRespDto<>(1, "success", createTodoReqDto));
 	}
 	
-	@GetMapping("/list")
-	public ResponseEntity<?> getTodoList(@RequestParam int page, int contentCount) {
-		List<TodoListRespDto> list = null;
-		
-		try {
-			list = todoService.getTodoList(page, contentCount);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return ResponseEntity.ok().body(new CMRespDto<>(-1, page + "page list fail to load", list));
-		}
-		
-		return ResponseEntity.ok().body(new CMRespDto<>(1, page + "page list success to load", list));
-	}
+//	@GetMapping("/list")
+//	public ResponseEntity<?> getTodoList(@RequestParam int page, int contentCount) {
+//		List<TodoListRespDto> list = null;
+//		
+//		try {
+//			list = todoService.getTodoList(page, contentCount);
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//			return ResponseEntity.ok().body(new CMRespDto<>(-1, page + "page list fail to load", list));
+//		}
+//		
+//		return ResponseEntity.ok().body(new CMRespDto<>(1, page + "page list success to load", list));
+//	}
+//	
+//	@GetMapping("/list/importance")
+//	public ResponseEntity<?> getImportanceTodoList(@RequestParam int page, int contentCount) {
+//		List<TodoListRespDto> list = null;
+//		
+//		try {
+//			list = todoService.getImportanceTodoList(page, contentCount);
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//			return ResponseEntity.ok().body(new CMRespDto<>(-1, page + "page list fail to load", list));
+//		}
+//		
+//		return ResponseEntity.ok().body(new CMRespDto<>(1, page + "page list success to load", list));
+//	}
 	
-	@GetMapping("/list/importance")
-	public ResponseEntity<?> getImportanceTodoList(@RequestParam int page, int contentCount) {
+	@GetMapping("/list/{type}")
+	public ResponseEntity<?> getTodoList(@PathVariable String type, @RequestParam int page, int contentCount) {
 		List<TodoListRespDto> list = null;
 		
 		try {
-			list = todoService.getImportanceTodoList(page, contentCount);
+			list = todoService.getTodoList(type, page, contentCount);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return ResponseEntity.ok().body(new CMRespDto<>(-1, page + "page list fail to load", list));
 		}
 		
-		return ResponseEntity.ok().body(new CMRespDto<>(1, page + "page list success to load", list));
+		return ResponseEntity.ok().body(new CMRespDto<>(1, "success", list));
 	}
 	
 	@PutMapping("/complete/todo/{todoCode}")
@@ -112,5 +127,20 @@ public class TodoController {
 		
 		return ResponseEntity.ok().body(new CMRespDto<>(1, "success", status));
 	}
+	
+	@DeleteMapping("/todo/{todoCode}")
+	public ResponseEntity<?> removeTodo(@PathVariable int todoCode) {
+		boolean status = false;
+		
+		try {
+			status = todoService.removeTodo(todoCode);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ResponseEntity.internalServerError().body(new CMRespDto<>(-1, "failed", status));
+		}
+		
+		return ResponseEntity.ok().body(new CMRespDto<>(1, "success", status));
+	}
+	
 }
 

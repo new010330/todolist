@@ -17,7 +17,7 @@
 		)
 	</insert>
 	
-	<select id="getTodoListofIndex" parameterType="hashmap" resultType="com.springboot.todolist.domain.todo.Todo">
+	<select id="getTodoList" parameterType="hashmap" resultType="com.springboot.todolist.domain.todo.Todo">
 		SELECT
 			tm.todo_code,
 			tm.todo_content,
@@ -25,6 +25,7 @@
 			tm.importance_flag,
 			
 			tt.total_count,
+			tc.incomplete_count,
 			
 			tm.create_date,
 			tm.update_date
@@ -33,16 +34,66 @@
 			LEFT OUTER JOIN (select
 								COUNT(*) AS total_count
 							from
-								todo_mst) tt ON(1=1)
+								todo_mst
+							where
+							<choose>
+								<when test='type.equals("importance")'>
+									importance_flag = 1
+								</when>
+								<when test='type.equals("complete")'>
+									todo_complete = 1
+								</when>
+								<when test='type.equals("incomplete")'>
+									todo_complete = 0
+								</when>
+								<otherwise>
+									1 = 1
+								</otherwise>
+							</choose>
+								) tt ON(1=1)
+			LEFT OUTER JOIN (select
+								COUNT(todo_complete) AS incomplete_count
+							from
+								todo_mst
+							where
+								todo_complete = 0
+								<if test='type.equals("importance")'>
+									and importance_flag = 1;
+								</if>
+								) tc ON (1 = 1)
+		WHERE
+		<choose>
+			<when test='type.equals("importance")'>
+				importance_flag = 1
+			</when>
+			<when test='type.equals("complete")'>
+				todo_complete = 1
+			</when>
+			<when test='type.equals("incomplete")'>
+				todo_complete = 0
+			</when>
+			<otherwise>
+				1 = 1
+			</otherwise>
+		</choose>
 		ORDER BY
 			tm.todo_code DESC
 		LIMIT
 			#{index}, #{count} <!-- map.put으로 넣어준 "count"키값을 넣는다. -->
 	</select>
 	
-	<select id="getImportanceTodoListOfIndex" parameterType="hashmap" resultType="com.springboot.todolist.domain.todo.Todo">
+	<!-- <select id="getImportanceTodoListOfIndex" parameterType="hashmap" resultType="com.springboot.todolist.domain.todo.Todo">
 		SELECT
-			*
+			tm.todo_code,
+			tm.todo_content,
+			tm.todo_complete,
+			tm.importance_flag,
+			
+			tt.total_count,
+			tc.incomplete_count,
+			
+			tm.create_date,
+			tm.update_date
 		FROM
 			todo_mst tm
 			LEFT OUTER JOIN (select
@@ -51,13 +102,28 @@
 								todo_mst
 							where
 								importance_flag = 1) tt ON(1=1)
+			LEFT OUTER JOIN (select
+								COUNT(tm2.todo_complete) AS incomplete_count
+							from
+								(select
+									*
+								from
+									todo_mst
+								where
+									importance_flag = 1 
+								order by
+									todo_code desc
+								limit
+									0, #{count2}) tm2
+							where
+								(tm2.todo_complete = 0)) tc ON (1 = 1)
 		WHERE
 			importance_flag = 1
 		ORDER BY
 			todo_code DESC
 				LIMIT
 					#{index}, #{count}
-	</select>
+	</select> -->
 	
 	<update id="updateTodoComplete" parameterType="Integer">
 		UPDATE
@@ -86,4 +152,12 @@
 		WHERE
 			todo_code = #{todo_code};
 	</update>
+	
+	<delete id="remove" parameterType="Integer">
+		DELETE
+		FROM
+			todo_mst
+		WHERE
+			todo_code = #{todo_code}
+	</delete>
 </mapper>
