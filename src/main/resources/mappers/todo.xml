@@ -50,7 +50,7 @@
 									1 = 1
 								</otherwise>
 							</choose>
-								) tt ON(1=1)
+								) tt ON(1 = 1)
 			LEFT OUTER JOIN (select
 								COUNT(todo_complete) AS incomplete_count
 							from
@@ -58,7 +58,7 @@
 							where
 								todo_complete = 0
 								<if test='type.equals("importance")'>
-									and importance_flag = 1;
+									and importance_flag = 1
 								</if>
 								) tc ON (1 = 1)
 		WHERE
@@ -76,9 +76,9 @@
 				1 = 1
 			</otherwise>
 		</choose>
-		ORDER BY
+		order by
 			tm.todo_code DESC
-		LIMIT
+		limit
 			#{index}, #{count} <!-- map.put으로 넣어준 "count"키값을 넣는다. -->
 	</select>
 	
