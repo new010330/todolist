@@ -63,7 +63,7 @@ for(let i = 0; i < typeSelectBoxListLis.length; i++) {
 function load() {
     $.ajax({
         type: "get",
-        url: `api/v1/todolist/list/${listType}`,
+        url: `/api/v1/todolist/list/${listType}`,
         data: {
             "page": page,
             contentCount: 20
@@ -119,12 +119,14 @@ function addEvent() {
 
     for(let i = 0; i < todoContents.length; i++) {
         let todoCode = todoContents[i].querySelector(".complete-check").getAttribute("id");
-        todoCode = todoCode.substring(todoCode.lastIndexOf("-") + 1);
+        todoCodeIndex = todoCode.substring(todoCode.lastIndexOf("-") + 1);
         console.log(todoCode);
+        console.log(todoCodeIndex);
         
         todoContents[i].querySelector(".complete-check").onchange = () => {
             console.log(todoCode);
-            updateStatus("complete", todoCode);
+            console.log(todoCodeIndex);
+            updateStatus("complete", todoCodeIndex);
         }
 
         todoContents[i].querySelector(".importance-check").onchange = () => {
