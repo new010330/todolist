@@ -3,7 +3,27 @@ const typeSelectBoxList = document.querySelector(".type-select-box-list");
 const todoContentList = document.querySelector(".todo-content-list");
 
 const typeSelectBoxListLis = typeSelectBoxList.querySelectorAll("li");
+const sectionBody = document.querySelector(".section-body");
+
+let page = 1;
+let totalPage = 0;
+
 //const test = document.querySelector(".selected-type");
+
+sectionBody.onscroll = () => {
+    console.log("offsetHeight: " + sectionBody.offsetHeight);
+    console.log("scrollTop: " + sectionBody.scrollTop);
+    console.log("clientHeight: "  + todoContentList.clientHeight);
+    let checkNum = todoContentList.clientHeight - sectionBody.offsetHeight - sectionBody.scrollTop;
+
+    if(checkNum < 1 && checkNum > -1) {
+        let newPage = page++;
+        if(newPage < totalPage) {
+            load();
+        }
+    }
+}
+
 let listType = "all";
 load();
 
@@ -20,7 +40,7 @@ selectedTypeButton.onclick = () => {
 for(let i = 0; i < typeSelectBoxListLis.length; i++) {
     typeSelectBoxListLis[i].onclick = () => {
         // alert(i);
-
+        page = 1;
 		for(let i = 0; i < typeSelectBoxListLis.length; i++) {
 			typeSelectBoxListLis[i].classList.remove("type-selected");
 		}
@@ -28,9 +48,9 @@ for(let i = 0; i < typeSelectBoxListLis.length; i++) {
 		const selectedType = document.querySelector(".selected-type");
 		typeSelectBoxListLis[i].classList.add("type-selected");
 		
+        listType = typeSelectBoxListLis[i].textContent.toLowerCase();
 		selectedType.textContent = typeSelectBoxListLis[i].textContent;
 
-        listType = typeSelectBoxListLis[i].textContent;
         todoContentList.innerHTML = ' ';
         // test.innerHTML = ' ';
         // test.innerHTML += listType;
@@ -45,7 +65,7 @@ function load() {
         type: "get",
         url: `/api/v1/todolist/list/${listType}`,
         data: {
-            page: 1,
+            "page": page,
             contentCount: 20
         },
         datatype: "json",
@@ -65,10 +85,16 @@ function errorMessage(request, status, error) {
     console.log(error);
 }
 
+function setTotalCount(totalCount) {
+    totalPage = totalCount % 20 == 0 ? totalCount / 20 : Math.floor(totalCount / 20) + 1;
+}
+
 function getList(data) {
     for(let content of data) {
         const incompleteCountNumber = document.querySelector(".incomplete-count-number");
         incompleteCountNumber.textContent = data[0].incompleteCount;
+		
+        setTotalCount(data[0].totalCount);
 
         const listContent = `
                             <li class="todo-content">
@@ -85,5 +111,45 @@ function getList(data) {
         `
         todoContentList.innerHTML += listContent;
     }
+    addEvent();
 }
 
+function addEvent() {
+    const todoContents = document.querySelectorAll(".todo-content");
+
+    for(let i = 0; i < todoContents.length; i++) {
+        let todoCode = todoContents[i].querySelector(".complete-check").getAttribute("id");
+        todoCodeIndex = todoCode.substring(todoCode.lastIndexOf("-") + 1);
+        console.log(todoCode);
+        console.log(todoCodeIndex);
+        
+        todoContents[i].querySelector(".complete-check").onchange = () => {
+            console.log(todoCode);
+            console.log(todoCodeIndex);
+            updateStatus("complete", todoCodeIndex);
+        }
+
+        todoContents[i].querySelector(".importance-check").onchange = () => {
+
+        }
+    }
+}
+
+function updateStatus(type, todoCode) {
+    result = false;
+    $.ajax({
+        type: "put",
+        url: `api/v1/todolist/${type}/todo/${todoCode}`,
+        async: false,
+        dataType: "json",
+        success: (response) => {
+            result = response.data;
+        },
+        error: errorMessage
+    })
+    return result;
+}
+
+function updateCheckStatus() {
+    
+}
